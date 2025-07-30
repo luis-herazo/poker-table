@@ -17,7 +17,32 @@ function poker_table_func(){
 
     </style>
     <script>
-	    <?php include 'js/core.js'; ?>
+	    <?php 
+        // We can't "include" the .js file because it's not valid PHP.
+        // Instead, we read it as a string and then execute the PHP parts within it.
+        $js_content = file_get_contents(__DIR__ . '/js/core.js');
+
+        // Replace the PHP code in the JS file with the actual URL values.
+        // This makes the JS valid and runnable in the browser.
+        $js_content_processed = preg_replace_callback(
+            '/<\?php echo plugins_url\((.*?)\); \?>/',
+            function($matches) {
+                // Reconstruct the arguments for plugins_url
+                // The arguments in the JS file are like: '../img/BestPlayer.svg', __FILE__
+                // We need to evaluate that in the context of this file.
+                $args_str = $matches[1];
+                // A bit of a hack to get the path argument. This assumes the first arg is a string literal.
+                preg_match("/'(.*?)'/", $args_str, $path_match);
+                $path = $path_match[1];
+                
+                // Now call the real plugins_url function.
+                return plugins_url($path, __FILE__);
+            },
+            $js_content
+        );
+
+        echo $js_content_processed;
+        ?>
     </script>
     
     <div class="mainContainer" id="mainContainer" >

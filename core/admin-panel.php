@@ -1,85 +1,114 @@
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" ></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-
-<!doctype html>
-<html lang="en">
-  <main role="main" class="inner cover">
-    <br/>
-    <h1 class="cover-heading">Interactive Poker Table </h1>
-    <p class="lead">Success vs loss prediction tool according to starting context. Use the shortcodes described to insert the table. </p>
-
-    <h4>Plugin info</h4>
-    <p> Version 1.0.0 </p>
-    <p> 6 different player profiles with a score assigned by default for each one. </p>
-    <br>
-    <br>
-      <h4 class="mb-3">Shortcodes</h4>
-      <div class="table-responsive">
-            <table class="table table-striped table-sm">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Code</th>
-                  <th>Descripción</th>
-                  <th>-</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>[poker-table]</td>
-                  <td>Interactive poker table</td>
-                  <td></td>
-                </tr>
-                
-              </tbody>
-            </table>
-      </div>
-
-      <hr/>
-     
-
-  </main>
-</html>
-
 <?php
-  add_action( 'save_default_data', 'save_default_data_table' );
-  function save_default_data_table(){
-      // Verificar si la solicitud proviene del formulario del plugin
-    if (!isset($_POST['action']) || $_POST['action'] !== 'save_default_data_table') {
-      wp_die('Acceso no autorizado');
+/**
+ * Admin Panel View - Bootstrap Edition
+ */
+
+// Ensure the file is not accessed directly.
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// --- Form Submission Logic ---
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Verify nonce for security
+    if (isset($_POST['poker_table_nonce']) && wp_verify_nonce($_POST['poker_table_nonce'], 'poker_table_update')) {
+        global $wpdb;
+        $table_name = $wpdb->prefix . 'poker_table';
+
+        // Sanitize and prepare data
+        $data = [
+            'youngsters_best'   => intval($_POST['youngsters_best']),
+            'youngsters_second' => intval($_POST['youngsters_second']),
+            'youngsters_tight'  => intval($_POST['youngsters_tight']),
+            'businessman_tight' => intval($_POST['businessman_tight']),
+            'businessman_rich'  => intval($_POST['businessman_rich']),
+            'businessman_crazy' => intval($_POST['businessman_crazy']),
+        ];
+
+        // Update the first row (assuming only one row of settings)
+        $wpdb->update($table_name, $data, ['id' => 1]);
+
+        // Show a success message
+        echo '<div class="alert alert-success mt-3"><strong>Success!</strong> Settings have been saved.</div>';
     }
+}
 
-    // Verificar permisos
-    if (!current_user_can('manage_options')) {
-      wp_die('No tienes permisos para realizar esta acción');
-    }
+// --- Data Retrieval ---
+global $wpdb;
+$table_name = $wpdb->prefix . 'poker_table';
+$settings = $wpdb->get_row("SELECT * FROM $table_name WHERE id = 1", ARRAY_A);
 
-    $tabla_name = 'poker_table';
-    // Verificar si la tabla de datos existe en la base de datos
-    global $wpdb;
-    $tabla_datos = $wpdb->prefix . 'mi_plugin_datos'; // Nombre de la tabla personalizada
-    $existe_tabla = $wpdb->get_var("SHOW TABLES LIKE '$tabla_name'");
-
-
-    if ($existe_tabla) {
-      // Mostrar datos guardados en la base de datos
-      $resultados = $wpdb->get_results("SELECT * FROM $tabla_name");
-
-      if ($resultados) {
-          echo '<h3>Datos guardados</h3>';
-          echo '<ul>';
-          foreach ($resultados as $resultado) {
-              echo '<li>' . $resultado->dato1 . ' - ' . $resultado->dato2 . '</li>';
-              // Repite para los demás campos del formulario
-          }
-          echo '</ul>';
-      }
-  }
-
-  }
+// Fallback if settings are not found
+if (!$settings) {
+    $settings = [
+        'youngsters_best' => 5, 'youngsters_second' => 3, 'youngsters_tight' => 1,
+        'businessman_tight' => -1, 'businessman_rich' => -3, 'businessman_crazy' => -5
+    ];
+}
 
 ?>
 
+<div class="wrap container-fluid my-4">
 
+    <h1 class="mb-4">Interactive Poker Table Settings</h1>
+
+    <div class="card">
+        <div class="card-header">
+            <h2 class="mb-0">Player Profile Scores</h2>
+        </div>
+        <div class="card-body">
+            <p>These values represent the expected win/loss rate for each player archetype. The player's final score is calculated based on these values.</p>
+            
+            <form method="POST" action="">
+                <?php wp_nonce_field('poker_table_update', 'poker_table_nonce'); ?>
+                
+                <h5 class="mt-3">Youngsters</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="youngsters_best" class="form-label">Best Player</label>
+                        <input type="number" class="form-control" id="youngsters_best" name="youngsters_best" value="<?php echo esc_attr($settings['youngsters_best']); ?>">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="youngsters_second" class="form-label">Second Best</label>
+                        <input type="number" class="form-control" id="youngsters_second" name="youngsters_second" value="<?php echo esc_attr($settings['youngsters_second']); ?>">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="youngsters_tight" class="form-label">Tight Player (Wins)</label>
+                        <input type="number" class="form-control" id="youngsters_tight" name="youngsters_tight" value="<?php echo esc_attr($settings['youngsters_tight']); ?>">
+                    </div>
+                </div>
+
+                <h5 class="mt-4">Businessmen</h5>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label for="businessman_tight" class="form-label">Tight Player (Loses)</label>
+                        <input type="number" class="form-control" id="businessman_tight" name="businessman_tight" value="<?php echo esc_attr($settings['businessman_tight']); ?>">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="businessman_rich" class="form-label">Rich Businessman</label>
+                        <input type="number" class="form-control" id="businessman_rich" name="businessman_rich" value="<?php echo esc_attr($settings['businessman_rich']); ?>">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label for="businessman_crazy" class="form-label">Crazy Gambler</label>
+                        <input type="number" class="form-control" id="businessman_crazy" name="businessman_crazy" value="<?php echo esc_attr($settings['businessman_crazy']); ?>">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h2 class="mb-0">Shortcode</h2>
+        </div>
+        <div class="card-body">
+            <p>To display the interactive poker table, insert the following shortcode into any page or post:</p>
+            <code>[poker-table]</code>
+        </div>
+    </div>
+
+</div>

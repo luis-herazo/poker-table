@@ -1,0 +1,8 @@
+# Local test runner
+test-runner.php
+
+# macOS specific
+.DS_Store
+
+# IDE specific
+.idea/

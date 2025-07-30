@@ -1,33 +1,56 @@
 <?php
+/**
+ * Database setup for Interactive Poker Table.
+ */
 
-register_activation_hook( __FILE__, 'pokerTable_db' );
-
-function pokerTable_db(){
-
-    $tabla_datos = 'poker_table';
-    global $wpdb;
-    $tabla_datos = $wpdb->prefix . $tabla_datos; // Nombre de la tabla personalizada
-
-    // Verificar si la tabla ya existe
-    if ($wpdb->get_var("SHOW TABLES LIKE '$tabla_datos'") != $tabla_datos) {
-        // Crear la tabla si no existe
-        $charset_collate = $wpdb->get_charset_collate();
-        $sql = "CREATE TABLE $tabla_datos (
-            id mediumint(9) NOT NULL AUTO_INCREMENT,
-            rake INT NOT NULL,
-            youngsters_best INT NOT NULL,
-            youngsters_second INT NOT NULL,
-            youngsters_tight INT NOT NULL,
-            businessman_tight INT NOT NULL,
-            businessman_rich INT NOT NULL,
-            businessman_crazy INT NOT NULL,
-            
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-
-        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-        dbDelta($sql);
-    }
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly.
 }
 
-?>
+/**
+ * Creates the custom database table on plugin activation.
+ * Also inserts a default row of data if the table is empty.
+ */
+function pokerTable_db() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'poker_table';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    // SQL to create the table
+    $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        rake INT NOT NULL DEFAULT 5,
+        youngsters_best INT NOT NULL DEFAULT 5,
+        youngsters_second INT NOT NULL DEFAULT 3,
+        youngsters_tight INT NOT NULL DEFAULT 1,
+        businessman_tight INT NOT NULL DEFAULT -1,
+        businessman_rich INT NOT NULL DEFAULT -3,
+        businessman_crazy INT NOT NULL DEFAULT -5,
+        PRIMARY KEY (id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+
+    // Check if the table is empty
+    $row_count = $wpdb->get_var("SELECT COUNT(*) FROM $table_name");
+
+    // If the table is empty, insert a default row
+    if ($row_count == 0) {
+        $wpdb->insert(
+            $table_name,
+            [
+                'rake' => 5,
+                'youngsters_best' => 5,
+                'youngsters_second' => 3,
+                'youngsters_tight' => 1,
+                'businessman_tight' => -1,
+                'businessman_rich' => -3,
+                'businessman_crazy' => -5,
+            ],
+            [
+                '%d', '%d', '%d', '%d', '%d', '%d', '%d'
+            ]
+        );
+    }
+}
