@@ -50,7 +50,7 @@ if (!$settings) {
 
 <div class="wrap container-fluid my-4">
 
-    <h1 class="mb-4">Interactive Poker Table Settings</h1>
+    <h1 class="mb-12">Interactive Poker Table Settings</h1>
 
     <div class="card">
         <div class="card-header">
@@ -62,7 +62,7 @@ if (!$settings) {
             <form method="POST" action="">
                 <?php wp_nonce_field('poker_table_update', 'poker_table_nonce'); ?>
                 
-                <h5 class="mt-3">Youngsters</h5>
+                <h5 class="mt-3">Youngsters (Wins)</h5>
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <label for="youngsters_best" class="form-label">Best Player</label>
@@ -73,15 +73,15 @@ if (!$settings) {
                         <input type="number" class="form-control" id="youngsters_second" name="youngsters_second" value="<?php echo esc_attr($settings['youngsters_second']); ?>">
                     </div>
                     <div class="col-md-4 mb-3">
-                        <label for="youngsters_tight" class="form-label">Tight Player (Wins)</label>
+                        <label for="youngsters_tight" class="form-label">Tight Player</label>
                         <input type="number" class="form-control" id="youngsters_tight" name="youngsters_tight" value="<?php echo esc_attr($settings['youngsters_tight']); ?>">
                     </div>
                 </div>
 
-                <h5 class="mt-4">Businessmen</h5>
+                <h5 class="mt-4">Businessmen (Loses)</h5>
                 <div class="row">
                     <div class="col-md-4 mb-3">
-                        <label for="businessman_tight" class="form-label">Tight Player (Loses)</label>
+                        <label for="businessman_tight" class="form-label">Tight Player</label>
                         <input type="number" class="form-control" id="businessman_tight" name="businessman_tight" value="<?php echo esc_attr($settings['businessman_tight']); ?>">
                     </div>
                     <div class="col-md-4 mb-3">
