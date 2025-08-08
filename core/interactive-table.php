@@ -97,7 +97,7 @@ function poker_table_func(){
                 <a class="btn-primary" onclick="location.reload()"> <span> RESET </span>  </a>
                 <a id="emptySeatButton" class="btn-primary" onclick="emptySeat()"> <span> Empty Seat </span>  </a>
             </div>
-            <div id="playerPopup" class="popup">
+            <div id="playerPopup" class="player-popup-poker">
                 <div class="popupTitle">
                     CHOOSE PLAYER
                 </div>
