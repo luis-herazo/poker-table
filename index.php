@@ -3,7 +3,7 @@
  * Plugin Name: Interactive Poker Table
  * Plugin URI: https://www.hertzios.com
  * Description: Interactive poker table
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: Luis Herazo
  * Author URI: https://www.hertzios.com
  * License: GPLv2 or later
