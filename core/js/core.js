@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function() {
         circulo.addEventListener('click', () => {
             const isMiniDesktop = window.matchMedia("(min-width: 1366px)").matches;
             const isSomeActive = [];
+
             if (document.getElementById('emptySeatButton').classList.contains('enabled')) {
                 const imagen = circulo.querySelector('img');
                 if (imagen) {
@@ -80,8 +81,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateTableValues();
 
                 circulos.forEach(c => {
+
+                    var sv = getSeatValue(c)
                     const element = c.querySelector('.playerScoreActive');
-                    if (element) {
+                    if (sv != 0) {
                         isSomeActive.push(element);
                     }   
                 });
@@ -98,6 +101,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             circulo.classList.add('active');
             circulo.querySelector('.playerScore').classList.add('playerScoreActive');
+
+
+            var seatValue = getSeatValue(circulo)
+
+            if(seatValue != 0){
+                emptySeat();
+            }
 
             if (isMiniDesktop) {
                 if(tableContainer) tableContainer.classList.add('opaque');
@@ -345,6 +355,13 @@ function hideSlider(){
     document.getElementById('resetButton')?.classList.remove('blur');
 
     setTimeout(updateTableValues, 500);
+}
+
+function getSeatValue(circulo){
+    const idCelda = circulo.dataset.targetCell;
+    const elementoCelda = document.getElementById(idCelda);
+
+    return elementoCelda.textContent
 }
 
 function setPlayerScoreValue(circulo, valor){
